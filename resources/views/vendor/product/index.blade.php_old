@@ -1,0 +1,48 @@
+@extends('layouts.app')
+
+@section('content')
+
+<div class="card">
+    <h3>Products</h3>
+
+    <button class="btn" onclick="showCreate()">+ Add Product</button>
+
+    <div id="productList"></div>
+</div>
+
+<div class="card" id="formArea" style="display:none;">
+    @include('vendor.product.form')
+</div>
+
+<script>
+function loadProducts(){
+    $.get('/vendor/products/list', function(data){
+        let html='';
+        data.forEach(p=>{
+            html+=`
+            <div class="card">
+                <b>${p.name}</b><br>
+
+                ${p.variations.map(v=>`
+                    ${v.attributes.map(a=>a.attribute_name+':'+a.attribute_value).join(',')}
+                    | Price:${v.price} | Stock:${v.stock}<br>
+                `).join('')}
+
+                <button class="btn" onclick="editProduct(${p.id})">Edit</button>
+                <button class="btn btn-danger" onclick="deleteProduct(${p.id})">Delete</button>
+            </div>`;
+        });
+        $('#productList').html(html);
+    });
+}
+loadProducts();
+
+function showCreate(){
+    $('#formArea').show();
+    $('#productForm')[0].reset();
+    $('#variation-wrapper').html('');
+    $('#product_id').val('');
+}
+</script>
+
+@endsection
